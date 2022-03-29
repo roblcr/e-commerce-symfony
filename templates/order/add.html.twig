@@ -1,0 +1,89 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Valider ma commande - Lumineuse Fabrique{% endblock %}
+
+{% block javascript %}
+<script src="https://js.stripe.com/v3/"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="cart-table-area section-padding-100">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 col-lg-8 m-auto">
+                    <div class="checkout_details_area mt-50 clearfix">
+
+                        <div class="cart-title">
+                            <h2>Recapitulatif de la commande</h2>
+                        </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                Mon adresse de livraison <br/>
+                                {{ delivery | raw }}
+                                    </div>
+                                <hr>
+                                    <div class="form-check">
+                                <p><strong>Mon transporteur :</strong> {{ carrier.name }}.<br>
+                                    <em> {{ carrier.description }}.</em></p>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-12 col-lg-4">
+                    <div class="cart-summary">
+                        <h5 class="text-center mb-3">Ma commande</h5>
+                        {% set total = null %}
+                        {% for key,product in cart %}
+
+                            <ul class="summary-table align-content-center w-50 m-auto">
+                                <li class=""><img src="/uploads/{{ product.product.illustration }}"></li>
+                                <li>{{ product.product.name }} <br>x {{ product.quantity }}</li>
+                                <li>{{ ((product.product.price * product.quantity) / 100)|number_format(2, ',', '.') }} €</li>
+                            </ul>
+                            {% set total = total + (product.product.price * product.quantity) %}
+                        {% endfor %}
+
+                        <p>Sous-total : {{ (total / 100)|number_format(2, ',', '.') }} € </p><br>
+                        <p>Livraison : {{ (carrier.price)|number_format(2, ',', '.') }} €</p><br>
+                        <p>Total : {{ ((total / 100) + carrier.price)|number_format(2, ',', '.') }} €</p>
+
+
+                    </div>
+                    <a href="" class="btn-success btn-block text-center p-3" id="checkout-button">Payer | {{ ((total / 100) + carrier.price)|number_format(2, ',', '.') }} €</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+var stripe = Stripe("sk_test_51KfjH9LCM9LjHczYDdLb5bCEq4wMCLWdGEON1zGKQPNp2984yzfPQcjVhBV4Od00KbEth5X93PJDZPYfNNFvDgeO00AwcQuf8b")
+var checkoutButton = document.getElementById("checkout-button")
+
+    checkoutButton.addEvenetListener("click", function () {
+    fetch("//order/create-session",
+    {method:"POST",
+    })
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (session) {
+            return stripe.redirectToCheckout ({ sessionId: session.id });
+        })
+        .then(function (result) {
+        if (result.error) {
+            alert(result.error.message);
+            }
+        })
+        .catch(function (error) {
+            console.error("Error:", error);
+        });
+    });
+</script>
+{% endblock %}
+
+

@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Valider ma commande - Lumineuse Fabrique{% endblock %}
+
+{% block content %}
+    <div class="cart-table-area section-padding-100">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 col-lg-8 m-auto">
+                    <div class="checkout_details_area mt-50 clearfix">
+
+                        <div class="cart-title">
+                            <h2>Recapitulatif de la commande</h2>
+                        </div>
+                        {% set formHtml %}
+                            {{ form_start(form, {action:path('app_order_recap')}) }}
+                            {{ form_label(form.addresses, 'Choisissez votre adresse de livraison') }}
+                            <a href="app_account_address_add">Ajouter une nouvelle adresse</a>
+                            {{ form_end(form) }}
+                        {% endset %}
+                    {{ formHtml|replace({'[br]' : '<br/>'})|raw }}
+
+                    </div>
+
+                </div>
+                <div class="col-12 col-lg-4">
+                    <div class="cart-summary">
+                        <h5 class="text-center mb-3">Récapitulatif</h5>
+                        {% for key,product in cart %}
+
+                            <ul class="summary-table align-content-center w-50 m-auto">
+                                <li class=""><img src="/uploads/{{ product.product.illustration }}"></li>
+                                <li>{{ product.product.name }} x {{ product.quantity }}</li>
+                            </ul>
+                        {% endfor %}
+
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
